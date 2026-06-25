@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: resona-geotech-web
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 4173
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: OPENAI_TRANSLATION_MODEL
+        value: gpt-4.1-mini
+      - key: NEWSAPI_KEY
+        sync: false
+      - key: RESONA_SIGNAL_SOURCE
+        value: gdelt
+      - key: SIGNAL_CACHE_TTL_MINUTES
+        value: 60

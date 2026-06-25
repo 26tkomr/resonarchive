@@ -1,0 +1,12 @@
+{
+  "name": "resona-geotech-api",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local API server for RESONA GeoTech Board story generation.",
+  "scripts": {
+    "dev": "node api-server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

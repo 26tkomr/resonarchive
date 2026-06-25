@@ -1,0 +1,48 @@
+{
+  "id": "seed_20260617061524_ai",
+  "status": "draft",
+  "theme": "ai",
+  "generatedAt": "2026-06-17T06:15:24.272Z",
+  "premise": "A person encounters the private afterimage of Artificial Intelligence.",
+  "era": "2030s to 2080s",
+  "possibleRegions": [
+    "Global"
+  ],
+  "protagonistOptions": [
+    "archive technician",
+    "teacher",
+    "ship clerk",
+    "nurse",
+    "data-center engineer"
+  ],
+  "tensions": [
+    "convenience versus dependency",
+    "public language versus private life",
+    "opportunity versus loss"
+  ],
+  "objects": [
+    "receipt",
+    "access code",
+    "old device",
+    "shipping notice",
+    "photograph"
+  ],
+  "atmosphere": "quiet, cinematic, literary, unresolved",
+  "causalThreads": [
+    [
+      "Companies seek regional AI infrastructure instead of one global cloud.",
+      "Regulators ask model providers to document training and safety practices.",
+      "AI chip controls reshape access to computation."
+    ],
+    [
+      "External event",
+      "Institutional adjustment",
+      "Ordinary life changes shape"
+    ]
+  ],
+  "sourceSignalIds": [
+    "sig_fallback_ai_3",
+    "sig_fallback_ai_2",
+    "sig_fallback_ai_1"
+  ]
+}

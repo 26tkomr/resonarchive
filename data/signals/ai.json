@@ -1,0 +1,171 @@
+{
+  "theme": "ai",
+  "updatedAt": "2026-06-17T11:32:12.121Z",
+  "signals": [
+    {
+      "id": "sig_fallback_ai_3",
+      "title": "Companies seek regional AI infrastructure instead of one global cloud.",
+      "source": "curated-fallback",
+      "url": "",
+      "region": "Global",
+      "theme": "ai",
+      "summary": "Fallback signal used when external data sources are unavailable.",
+      "publishedAt": "2026-06-17T11:32:12.119Z",
+      "relevanceScore": 72
+    },
+    {
+      "id": "sig_fallback_ai_2",
+      "title": "Regulators ask model providers to document training and safety practices.",
+      "source": "curated-fallback",
+      "url": "",
+      "region": "Global",
+      "theme": "ai",
+      "summary": "Fallback signal used when external data sources are unavailable.",
+      "publishedAt": "2026-06-17T11:32:12.119Z",
+      "relevanceScore": 65
+    },
+    {
+      "id": "sig_fallback_ai_1",
+      "title": "AI chip controls reshape access to computation.",
+      "source": "curated-fallback",
+      "url": "",
+      "region": "Global",
+      "theme": "ai",
+      "summary": "Fallback signal used when external data sources are unavailable.",
+      "publishedAt": "2026-06-17T11:32:12.119Z",
+      "relevanceScore": 58
+    },
+    {
+      "id": "sig_c5cd802343333684",
+      "title": "Trump Appoints Pam Bondi to White House AI Advisory Committee",
+      "source": "gdelt",
+      "url": "http://www.econotimes.com/Trump-Appoints-Pam-Bondi-to-White-House-AI-Advisory-Committee-1742727",
+      "region": "econotimes.com",
+      "theme": "ai",
+      "summary": "econotimes.com",
+      "publishedAt": "20260527T013000Z",
+      "relevanceScore": 100
+    },
+    {
+      "id": "sig_f7b35f4b99657e7a",
+      "title": "Korean AI chip startup DEEPX , Hyundai work on robots powered by generative AI",
+      "source": "gdelt",
+      "url": "https://www.livemint.com/technology/korean-ai-chip-startup-deepx-hyundai-work-on-robots-powered-by-generative-ai-11776222039465.html",
+      "region": "livemint.com",
+      "theme": "ai",
+      "summary": "livemint.com",
+      "publishedAt": "20260415T040000Z",
+      "relevanceScore": 100
+    },
+    {
+      "id": "sig_6a8f460c3addb215",
+      "title": "Korean AI chip startup DEEPX , Hyundai work on robots powered by generative AI",
+      "source": "gdelt",
+      "url": "https://www.asiaone.com:443/asia/korean-ai-chip-startup-deepx-hyundai-work-robots-powered-generative-ai",
+      "region": "asiaone.com",
+      "theme": "ai",
+      "summary": "asiaone.com",
+      "publishedAt": "20260415T090000Z",
+      "relevanceScore": 100
+    },
+    {
+      "id": "sig_9b08e8549d39fe46",
+      "title": "OpenAI partners with Novo Nordisk for AI drug discovery",
+      "source": "gdelt",
+      "url": "https://www.mobihealthnews.com/news/openai-partners-novo-nordisk-ai-drug-discovery",
+      "region": "mobihealthnews.com",
+      "theme": "ai",
+      "summary": "mobihealthnews.com",
+      "publishedAt": "20260414T083000Z",
+      "relevanceScore": 100
+    },
+    {
+      "id": "sig_93dc67b69984357a",
+      "title": "Generative AI Market : Size , Trends , Growth , Opportunities & ",
+      "source": "gdelt",
+      "url": "https://www.openpr.com/news/4448777/generative-ai-market-size-trends-growth-opportunities",
+      "region": "openpr.com",
+      "theme": "ai",
+      "summary": "openpr.com",
+      "publishedAt": "20260331T133000Z",
+      "relevanceScore": 100
+    },
+    {
+      "id": "sig_b227124eb474dcf8",
+      "title": "Broadcom Eyes $35 Billion AI Chip Financing Deal With Apollo and Blackstone",
+      "source": "gdelt",
+      "url": "http://www.econotimes.com/Broadcom-Eyes-35-Billion-AI-Chip-Financing-Deal-With-Apollo-and-Blackstone-1741243",
+      "region": "econotimes.com",
+      "theme": "ai",
+      "summary": "econotimes.com",
+      "publishedAt": "20260508T234500Z",
+      "relevanceScore": 88
+    },
+    {
+      "id": "sig_82a05c984eb6139c",
+      "title": "Hyundai partners with DeepX on AI robot chips",
+      "source": "gdelt",
+      "url": "https://www.timeslive.co.za/motoring/2026-04-15-hyundai-partners-with-deepx-on-ai-robot-chips/",
+      "region": "timeslive.co.za",
+      "theme": "ai",
+      "summary": "timeslive.co.za",
+      "publishedAt": "20260415T070000Z",
+      "relevanceScore": 88
+    },
+    {
+      "id": "sig_d062e9d5a561b192",
+      "title": "Samsung Electronics Posts Eightfold Profit Surge Driven by AI Chip Demand",
+      "source": "gdelt",
+      "url": "http://www.econotimes.com/Samsung-Electronics-Posts-Eightfold-Profit-Surge-Driven-by-AI-Chip-Demand-1738285",
+      "region": "econotimes.com",
+      "theme": "ai",
+      "summary": "econotimes.com",
+      "publishedAt": "20260407T061500Z",
+      "relevanceScore": 88
+    },
+    {
+      "id": "sig_e36ea7e46d514595",
+      "title": "Intel joins Musk Terafab mega AI chip project",
+      "source": "gdelt",
+      "url": "https://news.az/news/int-el-joins-musks-terafab-mega-ai-chip-project",
+      "region": "news.az",
+      "theme": "ai",
+      "summary": "news.az",
+      "publishedAt": "20260407T163000Z",
+      "relevanceScore": 88
+    },
+    {
+      "id": "sig_2978081d1648adfa",
+      "title": "Sodium Carbonate Market : Size , Trends , Growth , Opportunities & ",
+      "source": "gdelt",
+      "url": "https://www.openpr.com/news/4448823/sodium-carbonate-market-size-trends-growth-opportunities",
+      "region": "openpr.com",
+      "theme": "ai",
+      "summary": "openpr.com",
+      "publishedAt": "20260331T133000Z",
+      "relevanceScore": 80
+    },
+    {
+      "id": "sig_248d62d67c232a35",
+      "title": "Top AI Trends to Watch in 2026",
+      "source": "gdelt",
+      "url": "https://www.gottabemobile.com/ai-trends-2026/",
+      "region": "gottabemobile.com",
+      "theme": "ai",
+      "summary": "gottabemobile.com",
+      "publishedAt": "20260325T221500Z",
+      "relevanceScore": 80
+    },
+    {
+      "id": "sig_27fd33a8ecdb0003",
+      "title": "Al - Attiyah Foundation study warns data centre boom is outpacing energy , water and infrastructure systems",
+      "source": "gdelt",
+      "url": "http://thepeninsulaqatar.com/article/31/03/2026/al-attiyah-foundation-study-warns-data-centre-boom-is-outpacing-energy-water-and-infrastructure-systems",
+      "region": "thepeninsulaqatar.com",
+      "theme": "ai",
+      "summary": "thepeninsulaqatar.com",
+      "publishedAt": "20260331T110000Z",
+      "relevanceScore": 48
+    }
+  ]
+}
