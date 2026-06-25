@@ -3767,17 +3767,28 @@ function notFound() {
 function router() {
   const hash = location.hash || "#/";
   const path = hash.split("?")[0].replace("#", "");
-  if (path === "/") return home();
-  if (path === "/themes") return themesPage();
-  if (path.startsWith("/themes/")) return themeDetail(path.split("/")[2]);
-  if (path.startsWith("/theme/")) return themeDetail(themeFromSlug(path.split("/")[2])?.id);
-  if (path === "/map") return mapPage();
-  if (path === "/pro") return proPage();
-  if (path === "/premium") return proPage();
-  if (path === "/studio") return studioPage();
-  if (path === "/reports") return reportsPage();
-  if (path === "/archive") return archivePage();
-  return notFound();
+  if (path === "/") home();
+  else if (path === "/themes") themesPage();
+  else if (path.startsWith("/themes/")) themeDetail(path.split("/")[2]);
+  else if (path.startsWith("/theme/")) themeDetail(themeFromSlug(path.split("/")[2])?.id);
+  else if (path === "/map") mapPage();
+  else if (path === "/pro") proPage();
+  else if (path === "/premium") proPage();
+  else if (path === "/studio") studioPage();
+  else if (path === "/reports") reportsPage();
+  else if (path === "/archive") archivePage();
+  else notFound();
+  trackPageView(path);
+}
+
+function trackPageView(path) {
+  if (typeof window.gtag !== "function") return;
+  const title = document.title || "RESONA GeoTech Board";
+  window.gtag("event", "page_view", {
+    page_title: title,
+    page_location: window.location.href,
+    page_path: path || "/",
+  });
 }
 
 window.addEventListener("hashchange", router);

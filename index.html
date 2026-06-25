@@ -6,6 +6,26 @@
     <title>RESONA GeoTech Board</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="./styles.css?v=global-first-immersive-1" />
+    <script>
+      window.RESONA_CONFIG = {
+        gaMeasurementId: "__GA_MEASUREMENT_ID__",
+      };
+      (function () {
+        var measurementId = window.RESONA_CONFIG.gaMeasurementId;
+        if (!/^G-[A-Z0-9]+$/.test(measurementId)) return;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+        window.gtag("js", new Date());
+        window.gtag("config", measurementId, { send_page_view: false });
+
+        var script = document.createElement("script");
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(measurementId);
+        document.head.appendChild(script);
+      })();
+    </script>
   </head>
   <body>
     <div class="shell">

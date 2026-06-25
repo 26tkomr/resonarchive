@@ -17,6 +17,8 @@ services:
         value: gpt-4.1-mini
       - key: NEWSAPI_KEY
         sync: false
+      - key: GA_MEASUREMENT_ID
+        sync: false
       - key: RESONA_SIGNAL_SOURCE
         value: gdelt
       - key: SIGNAL_CACHE_TTL_MINUTES

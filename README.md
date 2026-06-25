@@ -216,7 +216,11 @@ Required production environment variables:
 ```text
 ADMIN_TOKEN
 OPENAI_API_KEY
+GA_MEASUREMENT_ID
 ```
+
+`GA_MEASUREMENT_ID` is the Google Analytics 4 measurement ID, such as `G-XXXXXXXXXX`.
+It is injected into `index.html` by the Node server at request time. If it is not set, analytics is disabled and the site continues to work normally.
 
 Optional:
 

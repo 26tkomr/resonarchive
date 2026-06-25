@@ -252,15 +252,36 @@ async function serveStatic(request, response, pathname) {
   }
   try {
     const content = await fs.readFile(filePath);
+    const ext = path.extname(filePath);
+    if (ext === ".html") {
+      response.writeHead(200, {
+        "Content-Type": mimeTypes[".html"],
+        "Cache-Control": "no-store",
+      });
+      response.end(injectPublicConfig(content.toString("utf8")));
+      return;
+    }
     response.writeHead(200, {
-      "Content-Type": mimeTypes[path.extname(filePath)] || "application/octet-stream",
+      "Content-Type": mimeTypes[ext] || "application/octet-stream",
     });
     response.end(content);
   } catch {
     const index = await fs.readFile(path.join(rootDir, "index.html"));
-    response.writeHead(200, { "Content-Type": mimeTypes[".html"] });
-    response.end(index);
+    response.writeHead(200, {
+      "Content-Type": mimeTypes[".html"],
+      "Cache-Control": "no-store",
+    });
+    response.end(injectPublicConfig(index.toString("utf8")));
   }
+}
+
+function publicGaMeasurementId() {
+  const id = String(process.env.GA_MEASUREMENT_ID || process.env.GOOGLE_ANALYTICS_ID || "").trim();
+  return /^G-[A-Z0-9]+$/.test(id) ? id : "";
+}
+
+function injectPublicConfig(html) {
+  return html.replaceAll("__GA_MEASUREMENT_ID__", publicGaMeasurementId());
 }
 
 function normalizeRegion(article) {
