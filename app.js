@@ -29,6 +29,10 @@ function toggleSavedStory(storyKey) {
     saved.add(storyKey);
   }
   localStorage.setItem("resonaSavedStories", JSON.stringify([...saved]));
+  trackEvent("story_bookmark", {
+    story_key: storyKey,
+    saved: saved.has(storyKey),
+  });
   archivePage();
 }
 
@@ -2766,7 +2770,7 @@ function themeDetail(id) {
         </div>
       </section>
 
-      <section class="future-glimpse reveal">
+      <section class="future-glimpse reveal" data-analytics-section="future_glimpse" data-theme-id="${theme.id}" data-theme-title="${themeTitle(theme)}">
         <div class="glimpse-frame">
           <span class="kicker">Future Glimpse</span>
           <div class="glimpse-meta">
@@ -2835,7 +2839,7 @@ function themeDetail(id) {
         <div class="experience-inner reading-layout">
           <span class="kicker">Featured Story</span>
           <h2>${fiction.title}</h2>
-          <article class="scenario-fiction-card story-fiction-card">
+          <article class="scenario-fiction-card story-fiction-card" data-reading-surface="story" data-theme-id="${theme.id}" data-theme-title="${themeTitle(theme)}" data-story-id="${fiction.id}" data-story-title="${fiction.title}">
             <span class="fiction-label">${fiction.id} / Story Record</span>
             <div class="glimpse-meta">
               <strong>${fiction.year}</strong>
@@ -2941,7 +2945,7 @@ function themeArchiveCard(theme, index) {
   const visual = themeVisuals[theme.id] || ["rgba(103,232,249,0.16)", "rgba(255,255,255,0.045)", categoryLabel(theme.category)];
   return `
     <article class="archive-theme-card motion-reveal" style="--i:${index};--v1:${visual[0]};--v2:${visual[1]}">
-      <a href="${themeHref(theme)}" aria-label="Open ${themeTitle(theme)}">
+      <a href="${themeHref(theme)}" aria-label="Open ${themeTitle(theme)}" data-analytics-link="theme_card" data-theme-id="${theme.id}" data-theme-title="${themeTitle(theme)}">
         <div class="archive-card-bg" aria-hidden="true">
           <span></span><i></i><b>${visual[2]}</b>
         </div>
@@ -3779,6 +3783,7 @@ function router() {
   else if (path === "/archive") archivePage();
   else notFound();
   trackPageView(path);
+  initReadingAnalytics(path);
 }
 
 function trackPageView(path) {
@@ -3791,6 +3796,175 @@ function trackPageView(path) {
   });
 }
 
+function trackEvent(name, params = {}) {
+  if (typeof window.gtag !== "function") return;
+  window.gtag("event", name, {
+    page_location: window.location.href,
+    page_path: (location.hash || "#/").replace("#", "") || "/",
+    ...params,
+  });
+}
+
+function pageKind(path) {
+  if (path === "/") return "home";
+  if (path === "/themes") return "themes";
+  if (path.startsWith("/themes/") || path.startsWith("/theme/")) return "theme_detail";
+  if (path === "/archive") return "archive";
+  if (path === "/map") return "map";
+  if (path === "/premium" || path === "/pro") return "premium";
+  if (path === "/studio") return "studio";
+  return "other";
+}
+
+function initReadingAnalytics(path) {
+  const kind = pageKind(path);
+  const theme = path.startsWith("/themes/")
+    ? themes.find((item) => item.id === path.split("/")[2])
+    : path.startsWith("/theme/")
+      ? themeFromSlug(path.split("/")[2])
+      : null;
+
+  const routeEvents = {
+    themes: "themes_open",
+    archive: "archive_open",
+    map: "map_open",
+    premium: "premium_open",
+    studio: "studio_open",
+  };
+
+  if (kind === "theme_detail" && theme) {
+    trackEvent("theme_open", {
+      theme_id: theme.id,
+      theme_title: themeTitle(theme),
+      category: theme.category,
+    });
+  } else if (routeEvents[kind]) {
+    trackEvent(routeEvents[kind], { page_kind: kind });
+  }
+
+  initScrollDepthAnalytics(path, kind);
+  initStoryReadingAnalytics();
+  initSectionViewAnalytics();
+}
+
+function initScrollDepthAnalytics(path, kind) {
+  window.removeEventListener("scroll", window.__resonaAnalyticsScroll || (() => {}));
+  const fired = new Set();
+  const thresholds = [25, 50, 75, 90];
+
+  const measure = () => {
+    const scrollable = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const percent = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+    thresholds.forEach((threshold) => {
+      if (percent >= threshold && !fired.has(threshold)) {
+        fired.add(threshold);
+        trackEvent("scroll_depth", {
+          depth_percent: threshold,
+          page_kind: kind,
+          tracked_path: path,
+        });
+      }
+    });
+  };
+
+  window.__resonaAnalyticsScroll = () => requestAnimationFrame(measure);
+  window.addEventListener("scroll", window.__resonaAnalyticsScroll, { passive: true });
+  measure();
+}
+
+function initStoryReadingAnalytics() {
+  const stories = [...document.querySelectorAll("[data-reading-surface='story']")];
+  stories.forEach((story) => {
+    story.dataset.readCompleteSent = "";
+  });
+
+  if (window.__resonaStoryObserver) window.__resonaStoryObserver.disconnect();
+  window.__resonaStoryObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.35) return;
+        const node = entry.target;
+        if (node.dataset.storyOpenSent) return;
+        node.dataset.storyOpenSent = "true";
+        trackEvent("story_open", storyAnalyticsParams(node));
+      });
+    },
+    { threshold: [0.35] },
+  );
+  stories.forEach((story) => window.__resonaStoryObserver.observe(story));
+
+  window.removeEventListener("scroll", window.__resonaStoryReadScroll || (() => {}));
+  window.__resonaStoryReadScroll = () => {
+    requestAnimationFrame(() => {
+      stories.forEach((story) => {
+        if (story.dataset.readCompleteSent) return;
+        const rect = story.getBoundingClientRect();
+        const visibleProgress = (window.innerHeight - rect.top) / Math.max(1, rect.height);
+        if (visibleProgress >= 0.9) {
+          story.dataset.readCompleteSent = "true";
+          trackEvent("story_read_complete", storyAnalyticsParams(story));
+        }
+      });
+    });
+  };
+  window.addEventListener("scroll", window.__resonaStoryReadScroll, { passive: true });
+  window.__resonaStoryReadScroll();
+}
+
+function storyAnalyticsParams(node) {
+  return {
+    theme_id: node.dataset.themeId || "",
+    theme_title: node.dataset.themeTitle || "",
+    story_id: node.dataset.storyId || "",
+    story_title: node.dataset.storyTitle || "",
+  };
+}
+
+function initSectionViewAnalytics() {
+  const sections = [...document.querySelectorAll("[data-analytics-section]")];
+  if (window.__resonaSectionObserver) window.__resonaSectionObserver.disconnect();
+  window.__resonaSectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.4) return;
+        const node = entry.target;
+        if (node.dataset.sectionViewSent) return;
+        node.dataset.sectionViewSent = "true";
+        trackEvent(`${node.dataset.analyticsSection}_view`, {
+          theme_id: node.dataset.themeId || "",
+          theme_title: node.dataset.themeTitle || "",
+        });
+      });
+    },
+    { threshold: [0.4] },
+  );
+  sections.forEach((section) => window.__resonaSectionObserver.observe(section));
+}
+
+function initInteractionAnalytics() {
+  if (window.__resonaInteractionAnalyticsReady) return;
+  window.__resonaInteractionAnalyticsReady = true;
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest?.("a[href]");
+    if (!link) return;
+    const href = link.getAttribute("href") || "";
+    if (link.dataset.analyticsLink === "theme_card" || href.startsWith("#/themes/") || href.startsWith("#/theme/")) {
+      trackEvent("theme_card_click", {
+        theme_id: link.dataset.themeId || "",
+        theme_title: link.dataset.themeTitle || link.textContent.trim().slice(0, 80),
+        href,
+      });
+    } else if (href === "#/archive") {
+      trackEvent("archive_click", { link_text: link.textContent.trim().slice(0, 80) });
+    } else if (href === "#/map") {
+      trackEvent("map_click", { link_text: link.textContent.trim().slice(0, 80) });
+    } else if (href === "#/premium" || href === "#/pro") {
+      trackEvent("premium_click", { link_text: link.textContent.trim().slice(0, 80) });
+    }
+  });
+}
+
 window.addEventListener("hashchange", router);
+initInteractionAnalytics();
 applyGlobalEnglishDataset();
 router();
