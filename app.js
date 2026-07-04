@@ -1441,10 +1441,10 @@ const viewpointLibrary = [
 const narrativeForms = [
   "エッセイ", "日記", "手紙", "会話", "回想録", "新聞記事", "博物館の展示説明", "音声ログ", "船舶記録", "AIの観測記録", "学校の作文", "行政メモ",
   "修理記録", "授業ノート", "家計簿の余白", "港湾記録", "診療前問診", "市場の掲示", "研究倫理メモ", "避難訓練の反省文",
-  "インタビュー記録", "裁判記録", "Wikipedia風記事", "宇宙船ログ", "調査報告書", "音声文字起こし", "メール", "SNS投稿", "学術論文の抜粋",
+  "インタビュー記録", "裁判記録", "Wikipedia風記事", "衛星運用ログ", "調査報告書", "音声文字起こし", "メール", "SNS投稿", "学術論文の抜粋",
 ];
 
-const futureYearPool = ["2030", "2032", "2034", "2037", "2041", "2046", "2055", "2063", "2072", "2088", "2204", "2319", "2601", "3007"];
+const futureYearPool = ["2028", "2030", "2032", "2034", "2037", "2041", "2046", "2051", "2055", "2060", "2063", "2068", "2072"];
 
 const emotionalTones = ["希望", "悲劇", "ブラックユーモア", "恐怖", "郷愁", "感動", "不条理", "静かな余韻"];
 
@@ -1537,7 +1537,7 @@ function formFrame(form, character, record, context) {
     "インタビュー記録": `記録者の質問に、${character.name}は何度か沈黙した。文字起こしには、その沈黙も括弧付きで残されている。`,
     "裁判記録": `証言台で問われたのは、誰が正しかったかではない。${character.name}が、その日に何を見て、何を見なかったことにしたのかだった。`,
     "Wikipedia風記事": `後年の百科事典では、この出来事は数行で説明される。しかし脚注の奥には、${character.name}の名が一度だけ現れる。`,
-    "宇宙船ログ": `船内時刻では朝だった。地球から届いた圧縮ニュースの中で、${record.city}の名前だけが妙に鮮明に残った。`,
+    "衛星運用ログ": `衛星管制室の朝は静かだった。地上から届いた圧縮ニュースの中で、${record.city}の名前だけが妙に鮮明に残った。`,
     "調査報告書": `報告書の第七節には、統計から外れた一人の証言として${character.name}の記録が添付されている。`,
     "メール": `件名は空白だった。${character.name}は何度も書き直し、結局、本文の最初に${record.city}の天気だけを書いた。`,
     "SNS投稿": `投稿は二分で削除された。だがスクリーンショットは残り、そこには${character.name}の冗談と、本気の不安が同じ行に並んでいた。`,
@@ -1553,8 +1553,8 @@ function scenarioTextFromMetadata(theme, record) {
   const technology = theme.technologies[0] || "見えない技術";
   const opening = storyOpening(theme, record, context, signal);
   const character = storyCharacter(theme, record, context);
-  const regionAngle = Number(record.year) >= 2200
-    ? "数世紀を隔てると、同じ出来事は歴史ではなく民話のように扱われる。けれど、その民話の中にも、価格、移動、仕事、家族の癖だけは奇妙に残っていた。"
+  const regionAngle = Number(record.year) >= 2065
+    ? "少し遠い近未来まで時間を置くと、その変化は政策名ではなく、仕事の選び方、家族の移動、学校の時間割、店の看板として残っていた。"
     : `${record.country}では、その変化は恐怖だけではなかった。別の地域で失われた仕事が、ここでは新しい訓練、移住、商店街の看板、夜間学校の時間割として現れた。`;
   return [
     opening,
@@ -1651,10 +1651,10 @@ const englishViewpoints = [
 
 const englishForms = [
   "diary", "interview", "conversation", "news article", "email", "letter", "court record", "AI monologue", "scientific report", "encyclopedia article",
-  "social media posts", "audio transcript", "captain's log", "memoir", "museum label", "field report", "school essay", "research abstract",
+  "social media posts", "audio transcript", "operations log", "memoir", "museum label", "field report", "school essay", "research abstract",
 ];
 
-const englishYears = ["2032", "2039", "2055", "2084", "2206", "2319", "2601", "3007", "4180"];
+const englishYears = ["2028", "2030", "2032", "2034", "2037", "2041", "2046", "2051", "2055", "2060", "2063", "2068", "2072"];
 const englishTones = ["hope", "tragedy", "melancholy", "fear", "wonder", "nostalgia", "black humor", "absurdity", "mystery"];
 const englishNames = ["Mara", "Noor", "Ilya", "Sofia", "Kenji", "Amina", "Rafael", "Lina", "Omar", "Eleni", "Theo", "Camila", "Samir", "Mina", "Jonas", "Hana"];
 const englishWounds = [
@@ -1762,9 +1762,9 @@ function scenarioTextFromMetadata(theme, record) {
     `A child in ${context.city} began collecting obsolete adapters. At first the collection was a game. Then neighbors brought more: charging plugs, medical connectors, school tablets, interface cards from machines nobody manufactured anymore. The child arranged them by shape, not function, and called the display an alphabet. Years later, a curator would borrow the collection for an exhibition about this period. The label would say that civilizations leave behind ports before they leave behind monuments.`,
     `${name} did not think of themselves as brave. Most days were consumed by errands. There was laundry. There were forms. There were bills with smaller fonts every year. There was a recurring dream in which every door in the city required a different password. But once, when a younger colleague asked whether all of this meant the future was ruined, ${name} answered too quickly: no. The speed of the answer surprised them. It came from somewhere older than optimism.`,
     `Hope, in this record, is not clean. It is mixed with resentment, fatigue, envy, and the embarrassing relief of being useful. ${name} saw new work arrive in places that had waited decades for investment. They also saw old neighborhoods become unaffordable when the new work came too fast. A scholarship could be a miracle for one student and a price signal for a landlord. The same announcement could make a mayor smile and a grandmother pack boxes.`,
-    `This is why the archive keeps multiple versions. A single theme can produce a tragedy in one language, a comedy in another, an inventory sheet in a third, and a love letter in a fourth. The archive does not decide which one is the truth. It preserves the friction between them. It lets readers return later and discover that a side character from one century became the ancestor of a rumor in another.`,
-    `In a later century, students would ask why people of this era did not see the pattern sooner. Their teachers would assign them these fragments instead of answering. The students would read about broken schedules, improvised repairs, new ports, missing medicines, family jokes, water rights, classroom access codes, and silent elevators. Some would still judge the past harshly. Others would recognize the posture of people carrying groceries while history rearranged the street behind them.`,
-    `Decades later, another story in this same world would mention ${name} only in passing. A child would find the name in a footnote attached to a collection called ${storyTitleFromContext(theme, context)}. The child would mispronounce it, then remember it for reasons no historian could explain.`,
+    `This is why the archive keeps multiple versions. A single theme can produce a tragedy in one city, a comedy in another, an inventory sheet in a third, and a love letter in a fourth. The archive does not decide which one is the truth. It preserves the friction between them. It lets readers return later and discover that a side character from one year became the witness of another.`,
+    `A few decades later, students would ask why people of this era did not see the pattern sooner. Their teachers would assign them these fragments instead of answering. The students would read about broken schedules, improvised repairs, new ports, missing medicines, family jokes, water rights, classroom access codes, and silent elevators. Some would still judge the past harshly. Others would recognize the posture of people carrying groceries while history rearranged the street behind them.`,
+    `Years later, another story in this same world would mention ${name} only in passing. A child would find the name in a footnote attached to a collection called ${storyTitleFromContext(theme, context)}. The child would mispronounce it, then remember it for reasons no historian could explain.`,
     `This is not a prediction. It is one possible memory born from a change already moving through the world. Another city would have made another genre from it: comedy, lawsuit, hymn, scam, lullaby, black-market manual, children's game. Another protagonist would have forgiven more easily. Another would have become rich. Another would have left no record at all.`,
     `Near midnight, ${name} walked home past a storefront that had once sold luxury watches and now repaired household machines. In the window, a sign promised that nothing was too old to ask for one more season. The phrase was meant for customers, but it sounded like a national policy, or a prayer, or a joke told by someone trying very hard not to be afraid.`,
     `At home, ${name} opened the saved message again. The room was small. The city outside kept its own counsel. Somewhere far away, ships changed lanes, models lost access, ministries revised language, private money crossed borders before flags could explain it, and children learned new names for things their grandparents had assumed were permanent.`,
@@ -2611,7 +2611,7 @@ nearFuture = function nearFutureEnglish() {
   return [
     "A new story may appear from a minor change in work, travel, school, energy, identity or money.",
     "Characters in different regions may experience the same event as loss, opportunity, absurdity or relief.",
-    "The archive may revisit this world decades or centuries later through another voice.",
+    "The archive may revisit this world years or decades later through another voice.",
   ];
 };
 
@@ -3286,7 +3286,7 @@ function themesPage() {
 
 function proPage() {
   const features = [
-    ["Full Archive", "Every story, every era, every recurring world."],
+    ["Full Archive", "Every story, every near-future era, every recurring world."],
     ["Audio Narration", "Slow, atmospheric readings for long-form stories."],
     ["Extended Stories", "Longer literary editions with deeper character arcs."],
     ["AI Discussions", "Conversations with the archive about possible futures."],

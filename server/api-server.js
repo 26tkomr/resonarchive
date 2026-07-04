@@ -464,7 +464,7 @@ function fallbackAnalysis(signals, theme) {
     ],
     storySeed: {
       premise: `A person encounters the private afterimage of ${signalThemes[theme]?.label || theme}.`,
-      era: "2030s to 2080s",
+      era: "2028 to 2072, centered on the 2030s and 2040s",
       possibleRegions: [...new Set(signals.map((signal) => signal.region))].slice(0, 5),
       protagonistOptions: ["archive technician", "teacher", "ship clerk", "nurse", "data-center engineer"],
       tensions: ["convenience versus dependency", "public language versus private life", "opportunity versus loss"],
@@ -506,6 +506,9 @@ function storyPrompt({ seed, signals }) {
     "Do not write news, market analysis, a prediction, or a dashboard explanation.",
     "Write the story in English first.",
     "Target 1000 to 1800 words.",
+    "Use a grounded near-future year between 2028 and 2072.",
+    "Prefer the 2030s and 2040s. Do not use the 2100s, 2200s, 3000s or distant far-future eras.",
+    "The future should feel like an extension of present politics, technology, work, prices, families and cities.",
     "Use a distinctive literary narrative form.",
     "Use a named protagonist with age, occupation, background, values, fear and motivation.",
     "The first paragraph must establish year, city, country and viewpoint.",
@@ -518,7 +521,8 @@ function storyPrompt({ seed, signals }) {
 }
 
 function fallbackStory(seed, signals) {
-  const year = seed.era?.match(/\d{4}/)?.[0] || "2041";
+  const rawYear = Number(seed.era?.match(/\d{4}/)?.[0] || 2041);
+  const year = String(Math.min(2072, Math.max(2028, rawYear)));
   const rawRegion = seed.possibleRegions?.[0] || "Singapore";
   const region = rawRegion === "Global" ? "Singapore" : rawRegion;
   const city = region.includes("/") ? region.split("/")[0].trim() : region;
