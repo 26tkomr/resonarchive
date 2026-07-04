@@ -941,6 +941,94 @@ const riskEvents = [
     note: "銅需給と送電網投資の遅れがAIデータセンター、EV、再エネ接続、電力価格に波及。",
   },
   {
+    id: "africa-urbanization",
+    themeId: "climate-migration-water-stress",
+    label: "アフリカ都市化と若年人口",
+    region: "ラゴス / ナイロビ / アクラ",
+    x: 50,
+    y: 64,
+    score: 68,
+    category: "Society",
+    note: "若年人口、都市流入、電力、住宅、教育が、新しい市場と社会不安の両方を生む。",
+  },
+  {
+    id: "biosecurity-surveillance",
+    themeId: "information-trust-fracture",
+    label: "バイオセキュリティと都市監視",
+    region: "シンガポール / 空港都市",
+    x: 73,
+    y: 65,
+    score: 61,
+    category: "Society",
+    note: "下水疫学、空港検疫、医療データが、感染症の記憶を都市の運用へ変える。",
+  },
+  {
+    id: "ai-data-center-power",
+    themeId: "billionaire-capital-ai-space",
+    label: "AIデータセンターと電力",
+    region: "米国 / 湾岸 / 北欧",
+    x: 21,
+    y: 39,
+    score: 80,
+    category: "AI",
+    note: "計算資源、電力契約、水、送電網が、AIの成長を地域の生活インフラへ接続する。",
+  },
+  {
+    id: "mediterranean-migration",
+    themeId: "europe-populism-migration",
+    label: "地中海移民ルート",
+    region: "北アフリカ / 南欧",
+    x: 48,
+    y: 47,
+    score: 70,
+    category: "Politics",
+    note: "移民ルート、沿岸警備、住宅、労働市場が欧州政治の日常語になる。",
+  },
+  {
+    id: "amazon-drought",
+    themeId: "food-security-price-shock",
+    label: "アマゾン干ばつと食料",
+    region: "ブラジル / アマゾン流域",
+    x: 34,
+    y: 67,
+    score: 64,
+    category: "Climate",
+    note: "干ばつ、河川輸送、農産物、電力が南米の暮らしと世界の食料価格をつなぐ。",
+  },
+  {
+    id: "indonesia-nickel",
+    themeId: "supply-chain-fragmentation",
+    label: "インドネシア・ニッケル政策",
+    region: "ジャカルタ / スラウェシ",
+    x: 78,
+    y: 67,
+    score: 60,
+    category: "Energy",
+    note: "EV電池資源、精錬、環境負荷、産業政策が新しい仕事と水辺の不安を同時に作る。",
+  },
+  {
+    id: "insurance-retreat",
+    themeId: "housing-affordability-generation",
+    label: "保険撤退と住めない地域",
+    region: "カリフォルニア / フロリダ / 豪州",
+    x: 18,
+    y: 45,
+    score: 67,
+    category: "Market Impact",
+    note: "火災、洪水、保険料、住宅ローンが、住める場所と家族の計画を静かに狭める。",
+  },
+  {
+    id: "undersea-cables",
+    themeId: "state-backed-cyber",
+    label: "海底ケーブルと通信主権",
+    region: "台湾周辺 / 北海 / 紅海",
+    x: 69,
+    y: 54,
+    score: 74,
+    category: "Technology",
+    note: "海底ケーブル、衛星通信、修理船、国家安全保障が、普通の通信速度の背後に現れる。",
+  },
+  {
     id: "us-political-fragmentation",
     themeId: "us-political-fragmentation",
     label: "米国政治分断",
@@ -1055,6 +1143,14 @@ const eventCoordinates = {
   "dollar-liquidity": [40.7, -74.0],
   "climate-migration": [15.0, 20.0],
   "copper-grid-shortage": [-20.2, -70.1],
+  "africa-urbanization": [6.5, 3.4],
+  "biosecurity-surveillance": [1.35, 103.8],
+  "ai-data-center-power": [39.0, -98.0],
+  "mediterranean-migration": [35.0, 14.0],
+  "amazon-drought": [-3.1, -60.0],
+  "indonesia-nickel": [-2.6, 121.0],
+  "insurance-retreat": [34.0, -118.2],
+  "undersea-cables": [18.0, 102.0],
   "us-political-fragmentation": [38.9, -77.0],
   "europe-populism-migration": [48.8, 2.3],
   "billionaire-capital-ai-space": [37.4, -122.1],
@@ -2698,6 +2794,7 @@ function themeDetail(id) {
   const archiveStories = scenarioStories(theme);
   const pendingStories = pendingScenarioStories(theme);
   const memoryPreview = memories.slice(0, 3);
+  const echoes = worldEchoes(theme, 4);
   const remainingMemoryCount = Math.max(0, archiveDepth(theme) - memoryPreview.length);
   app.innerHTML = `
     <article class="experience-shell">
@@ -2779,6 +2876,27 @@ function themeDetail(id) {
           </div>
           <div class="glimpse-text">
             ${glimpse.body.map((line) => `<p>${line}</p>`).join("")}
+          </div>
+        </div>
+      </section>
+
+      <section class="experience-section possibility-space reveal">
+        <div class="experience-inner">
+          <span class="kicker">World Echoes</span>
+          <h2>Not a sequel. Another life touched by the same signal.</h2>
+          <div class="possibility-grid">
+            ${echoes
+              .map(
+                (echo) => `
+                  <article>
+                    <span>${echo.id}</span>
+                    <h3>${echo.title}</h3>
+                    <small>${echo.year} / ${echo.city} / ${echo.country} / ${echo.viewpoint}</small>
+                    <p>${excerpt(echo.text[0], 118)}</p>
+                  </article>
+                `,
+              )
+              .join("")}
           </div>
         </div>
       </section>
@@ -2967,16 +3085,20 @@ function themeArchiveCard(theme, index) {
   `;
 }
 
-function worldMapPreview(limit = riskEvents.length) {
+function visibleMapEvents(limit = riskEvents.length) {
   const priorityIds = ["us-political-fragmentation", "europe-populism-migration", "billionaire-capital-ai-space"];
   const priorityEvents = riskEvents.filter((event) => priorityIds.includes(event.id));
   const baseEvents = riskEvents.filter((event) => !priorityIds.includes(event.id));
-  const events = limit < riskEvents.length ? [...baseEvents.slice(0, Math.max(0, limit - priorityEvents.length)), ...priorityEvents] : riskEvents;
+  return limit < riskEvents.length ? [...baseEvents.slice(0, Math.max(0, limit - priorityEvents.length)), ...priorityEvents] : riskEvents;
+}
+
+function worldMapPreview(limit = riskEvents.length) {
+  const events = visibleMapEvents(limit);
   return `
     <div class="world-map-panel">
       <div class="map-canvas" aria-label="Map of world signals">
         <div class="real-risk-map" data-limit="${limit}"></div>
-        <div class="map-caption">The lights remain after the event moves on.</div>
+        <div class="map-caption">${events.length} signals. Each light can become another life.</div>
       </div>
       <div class="map-event-list">
         ${events
@@ -3018,7 +3140,7 @@ function initRiskMaps() {
   mapNodes.forEach((node) => {
     node.dataset.ready = "true";
     const limit = Number(node.dataset.limit || riskEvents.length);
-    const events = riskEvents.slice(0, limit);
+    const events = visibleMapEvents(limit);
     const map = L.map(node, {
       center: [18, 18],
       zoom: limit > 12 ? 2 : 2,
@@ -3158,6 +3280,38 @@ function initImmersiveMotion(scope = document) {
   window.addEventListener("scroll", window.__resonaDepthHandler, { passive: true });
 }
 
+function latestWorldMemories(limit = 6) {
+  const preferred = [
+    "taiwan-contingency-risk",
+    "billionaire-capital-ai-space",
+    "climate-migration-water-stress",
+    "information-trust-fracture",
+    "supply-chain-fragmentation",
+    "food-security-price-shock",
+    "europe-populism-migration",
+    "state-backed-cyber",
+  ];
+  return preferred
+    .map((themeId) => themes.find((theme) => theme.id === themeId))
+    .filter(Boolean)
+    .map((theme, index) => {
+      const stories = scenarioStories(theme).filter((story) => story.status === "published");
+      const story = stories.length ? stories[(index * 2 + 1) % stories.length] : latestScenarioStory(theme);
+      return {
+        theme,
+        story,
+        href: themeHref(theme),
+      };
+    })
+    .slice(0, limit);
+}
+
+function worldEchoes(theme, limit = 4) {
+  return scenarioStories(theme)
+    .filter((story) => story.status === "published")
+    .slice(0, limit);
+}
+
 function home() {
   const featuredThemeIds = [
     "taiwan-contingency-risk",
@@ -3199,6 +3353,36 @@ function home() {
 
     <section class="section">
       <div class="section-head">
+        <span>New Memories from the World</span>
+        <h2>The same signal appears differently in another city.</h2>
+        <p>These are not sequels. They are neighboring lives touched by the same moving world.</p>
+      </div>
+      <div class="theme-list">
+        ${latestWorldMemories(5)
+          .map(
+            ({ theme, story }) => `
+              <article class="list-card motion-reveal">
+                <div class="story-marker"><span>${story.id.replace("Scenario Fiction ", "")}</span></div>
+                <div>
+                  <span class="eyebrow">${categoryLabel(theme.category)} / ${story.year}</span>
+                  <h2>${story.title}</h2>
+                  <p>${story.city} / ${story.country} / ${story.viewpoint}</p>
+                  <p>${excerpt(story.text[0], 150)}</p>
+                  <div class="tags">
+                    <span>${themeTitle(theme)}</span>
+                    <span>${story.engine?.form || story.narrativeForm || "memory"}</span>
+                  </div>
+                  <a class="text-link" href="${themeHref(theme)}">Enter this world</a>
+                </div>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
         <span>Featured Themes</span>
         <h2>Signals are raw material. Stories are the product.</h2>
       </div>
@@ -3213,7 +3397,7 @@ function home() {
         <h2>The map is not the story. It is where stories begin.</h2>
         <p>Lights appear, routes bend, and possible futures begin to gather.</p>
       </div>
-      ${worldMapPreview(12)}
+      ${worldMapPreview(24)}
     </section>
 
     <section class="split-section">
@@ -3731,6 +3915,14 @@ const englishEventDataset = {
   "dollar-liquidity": ["Dollar Liquidity Shock", "New York / Global Markets", "US rates and dollar funding conditions ripple through currencies, corporate debt and resource prices."],
   "climate-migration": ["Climate Migration and Water Stress", "Sahel / Middle East", "Water scarcity and heat move people before policy language catches up."],
   "copper-grid-shortage": ["Copper and Grid Bottlenecks", "Chile / Peru / Global Grids", "Copper supply and grid delays touch AI data centers, EVs, renewables and electricity prices."],
+  "africa-urbanization": ["African Urban Futures", "Lagos / Nairobi / Accra", "Young populations, housing, power and education turn city growth into new work and new strain."],
+  "biosecurity-surveillance": ["Biosecurity in Everyday Cities", "Singapore / Airport Cities", "Wastewater, airport screening and health data make outbreak memory part of urban operations."],
+  "ai-data-center-power": ["AI Data Centers and Power", "United States / Gulf / Nordic Grids", "Compute, water, grid access and private capital turn AI growth into a local infrastructure question."],
+  "mediterranean-migration": ["Mediterranean Migration Routes", "North Africa / Southern Europe", "Migration routes, coast guards, housing and labor markets become ordinary political weather."],
+  "amazon-drought": ["Amazon Drought and Food", "Brazil / Amazon Basin", "Drought, river transport, food exports and electricity connect South American households to global prices."],
+  "indonesia-nickel": ["Indonesian Nickel and Battery Power", "Jakarta / Sulawesi", "EV minerals, refining, labor and water create new industry beside new environmental pressure."],
+  "insurance-retreat": ["Insurance Retreat", "California / Florida / Australia", "Fire, flood, premiums and mortgages quietly redraw where families can afford to live."],
+  "undersea-cables": ["Undersea Cables and Communication Sovereignty", "Taiwan / North Sea / Red Sea", "Cables, repair ships, satellites and state pressure appear behind ordinary connection speeds."],
 };
 
 const englishSourceSignals = {
