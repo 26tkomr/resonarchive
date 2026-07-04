@@ -3312,6 +3312,99 @@ function worldEchoes(theme, limit = 4) {
     .slice(0, limit);
 }
 
+const archiveUpdates = [
+  {
+    id: "2026-07-04-world-signals",
+    date: "2026-07-04",
+    type: "World Signals",
+    title: "Eight new world signals entered the map.",
+    description: "African urban futures, biosecurity, AI power demand, migration routes, Amazon drought, nickel politics, insurance retreat and undersea cables now appear as story material.",
+    metric: "+8 signals",
+  },
+  {
+    id: "2026-07-04-memory-pathways",
+    date: "2026-07-04",
+    type: "Memory Pathways",
+    title: "New memory pathways were added to the front page.",
+    description: "Readers can now enter the archive through lives in different cities, not only through themes.",
+    metric: "5 entries",
+  },
+  {
+    id: "2026-07-04-world-echoes",
+    date: "2026-07-04",
+    type: "Story Structure",
+    title: "World Echoes now appear inside theme pages.",
+    description: "Each theme can show neighboring lives touched by the same signal, without turning the site into a linear sequel.",
+    metric: "new section",
+  },
+  {
+    id: "2026-07-04-near-future",
+    date: "2026-07-04",
+    type: "Timeline",
+    title: "Stories are now grounded in the near future.",
+    description: "The archive now avoids distant 3000s-style timelines and keeps stories close to present-day politics, technology and daily life.",
+    metric: "2028-2072",
+  },
+];
+
+function latestArchiveUpdate() {
+  return archiveUpdates[0];
+}
+
+function archiveUpdateSeenId() {
+  try {
+    return localStorage.getItem("resonaSeenArchiveUpdate") || "";
+  } catch {
+    return "";
+  }
+}
+
+function hasUnreadArchiveUpdate() {
+  return archiveUpdateSeenId() !== latestArchiveUpdate().id;
+}
+
+function markArchiveUpdatesSeen() {
+  try {
+    localStorage.setItem("resonaSeenArchiveUpdate", latestArchiveUpdate().id);
+  } catch {
+    // Reading remains available without local storage.
+  }
+  home();
+}
+
+window.markArchiveUpdatesSeen = markArchiveUpdatesSeen;
+
+function archiveUpdatePanel() {
+  const latest = latestArchiveUpdate();
+  const unread = hasUnreadArchiveUpdate();
+  return `
+    <section class="archive-update-panel motion-reveal ${unread ? "is-unread" : ""}" aria-label="Archive updates">
+      <div class="update-pulse" aria-hidden="true"><span></span><i></i></div>
+      <div class="update-copy">
+        <span class="eyebrow">${unread ? "Archive Updated" : "Latest Archive Change"} / ${latest.date}</span>
+        <h2>${latest.title}</h2>
+        <p>${latest.description}</p>
+      </div>
+      <div class="update-metrics">
+        ${archiveUpdates
+          .slice(0, 3)
+          .map(
+            (item) => `
+              <article>
+                <span>${item.type}</span>
+                <strong>${item.metric}</strong>
+              </article>
+            `,
+          )
+          .join("")}
+      </div>
+      <button class="text-link button-link" type="button" onclick="markArchiveUpdatesSeen()">
+        ${unread ? "Mark as seen" : "Seen"}
+      </button>
+    </section>
+  `;
+}
+
 function home() {
   const featuredThemeIds = [
     "taiwan-contingency-risk",
@@ -3350,6 +3443,8 @@ function home() {
         </div>
       </aside>
     </section>
+
+    ${archiveUpdatePanel()}
 
     <section class="section">
       <div class="section-head">
