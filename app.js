@@ -2051,6 +2051,56 @@ function excerpt(text, maxLength = 92) {
   return clean.length > maxLength ? `${clean.slice(0, maxLength)}...` : clean;
 }
 
+function storyNumber(story) {
+  return story.id?.match(/#(\d+)/)?.[1] || String(story.sequence || 1).padStart(3, "0");
+}
+
+function storyHref(theme, story) {
+  return `#/story/${themeSlug(theme)}/${storyNumber(story)}`;
+}
+
+function storyReadMinutes(story) {
+  const words = story.text.join(" ").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(3, Math.ceil(words / 220));
+}
+
+function storyHook(theme, story) {
+  const first = story.text[0] || themeSummary(theme);
+  return excerpt(first.replace(/^[A-Z\s/.-]+?\.\s*/, ""), 128);
+}
+
+function storyThemeSignal(theme) {
+  const signals = sourceSignalSeeds[theme.id] || theme.scenarios || [];
+  return signals[0] || themeSummary(theme);
+}
+
+function findStoryByRoute(themeSlugValue, storyNumberValue) {
+  const theme = themeFromSlug(themeSlugValue) || themes[0];
+  const story = scenarioStories(theme).find((item) => storyNumber(item) === storyNumberValue) || latestScenarioStory(theme);
+  return { theme, story };
+}
+
+function relatedStories(theme, currentStory, limit = 3) {
+  const sameTheme = scenarioStories(theme)
+    .filter((story) => story.status === "published" && story.id !== currentStory.id)
+    .slice(0, limit);
+  if (sameTheme.length >= limit) return sameTheme.map((story) => ({ theme, story }));
+  const others = latestWorldMemories(8)
+    .filter((item) => item.theme.id !== theme.id)
+    .slice(0, limit - sameTheme.length);
+  return [...sameTheme.map((story) => ({ theme, story })), ...others];
+}
+
+function sectionedStoryParagraphs(story) {
+  const headings = ["The Signal Arrives", "The City Adjusts", "What Remains"];
+  return story.text
+    .map((paragraph, index) => {
+      const heading = index > 0 && index % 5 === 0 ? `<h3>${headings[Math.floor(index / 5) % headings.length]}</h3>` : "";
+      return `${heading}<p>${paragraph}</p>`;
+    })
+    .join("");
+}
+
 function scenarioFiction(theme) {
   const archived = scenarioStoryArchives[theme.id]?.filter((story) => story.status === "published").at(-1);
   if (archived) {
@@ -2967,6 +3017,10 @@ function themeDetail(id) {
               ${fiction.text.map((paragraph) => `<p>${paragraph}</p>`).join("")}
             </div>
             <footer>A fictional memory born from current signals</footer>
+            <div class="hero-actions story-card-actions">
+              <a class="primary" href="${storyHref(theme, fiction)}" data-analytics-link="story_card" data-story-id="${fiction.id}" data-story-title="${fiction.title}">Open reader mode · ${storyReadMinutes(fiction)} min</a>
+              <a class="secondary" href="${themeHref(theme)}" data-analytics-link="worldline_more">This worldline</a>
+            </div>
           </article>
         </div>
       </section>
@@ -3312,6 +3366,18 @@ function worldEchoes(theme, limit = 4) {
     .slice(0, limit);
 }
 
+function todayReadingPathway() {
+  const theme = themes.find((item) => item.id === "taiwan-contingency-risk") || themes[0];
+  const story = scenarioStories(theme).find((item) => storyNumber(item) === "002") || latestScenarioStory(theme);
+  return {
+    theme,
+    story,
+    signal: storyThemeSignal(theme),
+    scenario: nearFuture(theme)[0] || worldLine(theme),
+    related: relatedStories(theme, story, 3),
+  };
+}
+
 const archiveUpdates = [
   {
     id: "2026-07-04-world-signals",
@@ -3406,6 +3472,7 @@ function archiveUpdatePanel() {
 }
 
 function home() {
+  const today = todayReadingPathway();
   const featuredThemeIds = [
     "taiwan-contingency-risk",
     "us-political-fragmentation",
@@ -3424,9 +3491,9 @@ function home() {
       <div class="hero-copy">
         <span class="eyebrow">Archive of Possible Futures</span>
         <h1>RESONA GeoTech Board</h1>
-        <p class="lead">An ever-growing collection of science fiction born from reality.</p>
+        <p class="lead">World events become near futures. Near futures become stories you can stay inside.</p>
         <div class="hero-actions">
-          <a class="primary" href="#/archive">Read the Archive</a>
+          <a class="primary" href="${storyHref(today.theme, today.story)}" data-analytics-link="story_card" data-story-id="${today.story.id}" data-story-title="${today.story.title}">Read today's story · ${storyReadMinutes(today.story)} min</a>
           <a class="secondary" href="#/themes">Explore Themes</a>
         </div>
       </div>
@@ -3446,6 +3513,42 @@ function home() {
 
     ${archiveUpdatePanel()}
 
+    <section class="reading-pathway motion-reveal">
+      <div class="pathway-copy">
+        <span class="eyebrow">Today&apos;s Signal</span>
+        <h2>${themeTitle(today.theme)}</h2>
+        <p>${today.signal}</p>
+        <div class="pathway-steps" aria-label="News to story pathway">
+          <article>
+            <span>01 / World</span>
+            <strong>${worldLine(today.theme)}</strong>
+          </article>
+          <article>
+            <span>02 / Near Future</span>
+            <strong>${today.scenario}</strong>
+          </article>
+          <article>
+            <span>03 / Fiction</span>
+            <strong>${today.story.title}</strong>
+          </article>
+        </div>
+      </div>
+      <article class="featured-story-card">
+        <span class="eyebrow">Featured Story / ${storyReadMinutes(today.story)} min read</span>
+        <h2>${today.story.title}</h2>
+        <p>${storyHook(today.theme, today.story)}</p>
+        <div class="tags">
+          <span>${categoryLabel(today.theme.category)}</span>
+          <span>${themeTitle(today.theme)}</span>
+          <span>${today.story.city} / ${today.story.country}</span>
+        </div>
+        <div class="hero-actions">
+          <a class="primary" href="${storyHref(today.theme, today.story)}" data-analytics-link="story_card" data-story-id="${today.story.id}" data-story-title="${today.story.title}">Read</a>
+          <a class="secondary" href="${themeHref(today.theme)}" data-analytics-link="worldline_more">Read this worldline</a>
+        </div>
+      </article>
+    </section>
+
     <section class="section">
       <div class="section-head">
         <span>New Memories from the World</span>
@@ -3461,13 +3564,17 @@ function home() {
                 <div>
                   <span class="eyebrow">${categoryLabel(theme.category)} / ${story.year}</span>
                   <h2>${story.title}</h2>
+                  <p class="story-hook">${storyHook(theme, story)}</p>
                   <p>${story.city} / ${story.country} / ${story.viewpoint}</p>
                   <p>${excerpt(story.text[0], 150)}</p>
                   <div class="tags">
+                    <span>${storyReadMinutes(story)} min read</span>
                     <span>${themeTitle(theme)}</span>
+                    <span>${storyThemeSignal(theme)}</span>
                     <span>${story.engine?.form || story.narrativeForm || "memory"}</span>
                   </div>
-                  <a class="text-link" href="${themeHref(theme)}">Enter this world</a>
+                  <a class="text-link" href="${storyHref(theme, story)}" data-analytics-link="story_card" data-story-id="${story.id}" data-story-title="${story.title}">Read</a>
+                  <a class="text-link" href="${themeHref(theme)}" data-analytics-link="worldline_more">Read this worldline</a>
                 </div>
               </article>
             `,
@@ -3695,6 +3802,95 @@ function reportsPage() {
   `;
 }
 
+function storyPage(themeSlugValue, storyNumberValue) {
+  const { theme, story } = findStoryByRoute(themeSlugValue, storyNumberValue);
+  const related = relatedStories(theme, story, 3);
+  app.innerHTML = `
+    <div class="story-progress" aria-hidden="true"><span></span></div>
+    <article class="story-reader-shell">
+      <header class="story-reader-hero motion-reveal">
+        <a class="back-link dark" href="${themeHref(theme)}">← ${themeTitle(theme)}</a>
+        <span class="eyebrow">Story Record / ${storyReadMinutes(story)} min read</span>
+        <h1>${story.title}</h1>
+        <p class="story-hook">${storyHook(theme, story)}</p>
+        <div class="tags">
+          <span>${categoryLabel(theme.category)}</span>
+          <span>${story.year}</span>
+          <span>${story.city} / ${story.country}</span>
+          <span>${story.viewpoint}</span>
+        </div>
+      </header>
+
+      <section class="reality-bridge motion-reveal">
+        <article>
+          <span>World signal</span>
+          <p>${storyThemeSignal(theme)}</p>
+        </article>
+        <article>
+          <span>Near future</span>
+          <p>${nearFuture(theme)[0] || worldLine(theme)}</p>
+        </article>
+        <article>
+          <span>Why this story</span>
+          <p>This is one possible memory, not a forecast. Another city would make another genre from the same event.</p>
+        </article>
+      </section>
+
+      <section class="scenario-fiction-card story-reader-card" data-reading-surface="story" data-theme-id="${theme.id}" data-theme-title="${themeTitle(theme)}" data-story-id="${story.id}" data-story-title="${story.title}">
+        <span class="fiction-label">${story.id} / ${story.year} / ${story.city}</span>
+        <div class="fiction-body">
+          ${sectionedStoryParagraphs(story)}
+        </div>
+      </section>
+
+      <section class="reader-choice motion-reveal" data-story-id="${story.id}">
+        <span class="eyebrow">You reach the same room</span>
+        <h2>What would you trust?</h2>
+        <p>In this worldline, an ordinary decision now depends on systems too large to see.</p>
+        <div class="choice-grid">
+          <button type="button" onclick="chooseStoryPath('${story.id}', 'delegate_to_ai')">Let the machine decide</button>
+          <button type="button" onclick="chooseStoryPath('${story.id}', 'keep_human_final')">Keep the human decision</button>
+        </div>
+        <p class="choice-response" id="choice-response-${story.id.replace(/[^a-zA-Z0-9]/g, "-")}"></p>
+      </section>
+
+      <section class="section related-reading">
+        <div class="section-head">
+          <span>Related Records</span>
+          <h2>Another city, the same moving world.</h2>
+        </div>
+        <div class="dashboard-grid">
+          ${related
+            .map(
+              ({ theme: relatedTheme, story: relatedStory }) => `
+                <article class="theme-card motion-reveal">
+                  <div class="card-head"><span>${categoryLabel(relatedTheme.category)}</span><strong>${storyReadMinutes(relatedStory)} min</strong></div>
+                  <h3>${relatedStory.title}</h3>
+                  <p>${storyHook(relatedTheme, relatedStory)}</p>
+                  <div class="tags">
+                    <span>${themeTitle(relatedTheme)}</span>
+                    <span>${relatedStory.city} / ${relatedStory.country}</span>
+                  </div>
+                  <div class="card-actions">
+                    <a href="${storyHref(relatedTheme, relatedStory)}" data-analytics-link="related_story" data-story-id="${relatedStory.id}" data-story-title="${relatedStory.title}">Read</a>
+                    <span>${relatedStory.year}</span>
+                  </div>
+                </article>
+              `,
+            )
+            .join("")}
+        </div>
+        <div class="hero-actions">
+          <a class="secondary" href="${themeHref(theme)}" data-analytics-link="worldline_more">Read this worldline</a>
+          <a class="secondary" href="#/archive">Open Archive</a>
+        </div>
+      </section>
+    </article>
+  `;
+  initPageMotionSoon();
+  initStoryReaderSoon();
+}
+
 function archivePage() {
   const allStories = themes.flatMap((theme) =>
     scenarioStories(theme).map((story) => ({
@@ -3771,15 +3967,18 @@ function archivePage() {
               <div>
                 <span class="eyebrow">${story.status} / ${categoryLabel(story.category)}</span>
                 <h2>${story.title}</h2>
+                <p class="story-hook">${storyHook(themes.find((theme) => theme.id === story.themeId) || themes[0], story)}</p>
                 <p>${story.year} / ${story.city} / ${story.country} / ${story.viewpoint}</p>
-                <p>${excerpt(story.text[0], 140)}</p>
                 <div class="tags">
+                  <span>${storyReadMinutes(story)} min read</span>
                   <span>${story.themeTitle}</span>
+                  <span>${storyThemeSignal(themes.find((theme) => theme.id === story.themeId) || themes[0])}</span>
                   <span>${story.path}</span>
                   ${story.engine ? `<span>${story.engine.form}</span><span>${story.engine.pattern.domain}</span>` : ""}
                   ${story.sourceSignals.slice(0, 3).map((signal) => `<span>${signal}</span>`).join("")}
                 </div>
-                <a class="text-link" href="${themeHref(themes.find((theme) => theme.id === story.themeId) || themes[0])}">Read Theme</a>
+                <a class="text-link" href="${storyHref(themes.find((theme) => theme.id === story.themeId) || themes[0], story)}" data-analytics-link="story_card" data-story-id="${story.id}" data-story-title="${story.title}">Read</a>
+                <a class="text-link" href="${themeHref(themes.find((theme) => theme.id === story.themeId) || themes[0])}" data-analytics-link="worldline_more">Worldline</a>
                 <button class="text-link button-link" type="button" onclick="toggleSavedStory('${story.themeId}:${story.id}')">${saved.has(`${story.themeId}:${story.id}`) ? "Saved" : "Bookmark"}</button>
               </div>
             </article>
@@ -4060,6 +4259,10 @@ function router() {
   const path = hash.split("?")[0].replace("#", "");
   if (path === "/") home();
   else if (path === "/themes") themesPage();
+  else if (path.startsWith("/story/")) {
+    const parts = path.split("/");
+    storyPage(parts[2], parts[3]);
+  }
   else if (path.startsWith("/themes/")) themeDetail(path.split("/")[2]);
   else if (path.startsWith("/theme/")) themeDetail(themeFromSlug(path.split("/")[2])?.id);
   else if (path === "/map") mapPage();
@@ -4241,6 +4444,23 @@ function initInteractionAnalytics() {
         theme_title: link.dataset.themeTitle || link.textContent.trim().slice(0, 80),
         href,
       });
+    } else if (link.dataset.analyticsLink === "story_card") {
+      trackEvent("story_card_click", {
+        story_id: link.dataset.storyId || "",
+        story_title: link.dataset.storyTitle || link.textContent.trim().slice(0, 80),
+        href,
+      });
+    } else if (link.dataset.analyticsLink === "related_story") {
+      trackEvent("related_story_click", {
+        story_id: link.dataset.storyId || "",
+        story_title: link.dataset.storyTitle || link.textContent.trim().slice(0, 80),
+        href,
+      });
+    } else if (link.dataset.analyticsLink === "worldline_more") {
+      trackEvent("worldline_more_click", {
+        link_text: link.textContent.trim().slice(0, 80),
+        href,
+      });
     } else if (href === "#/archive") {
       trackEvent("archive_click", { link_text: link.textContent.trim().slice(0, 80) });
     } else if (href === "#/map") {
@@ -4250,6 +4470,49 @@ function initInteractionAnalytics() {
     }
   });
 }
+
+function initStoryReaderSoon() {
+  window.setTimeout(initStoryReader, 0);
+}
+
+function initStoryReader() {
+  const bar = document.querySelector(".story-progress span");
+  const reader = document.querySelector(".story-reader-card");
+  if (!bar || !reader) return;
+
+  const update = () => {
+    const rect = reader.getBoundingClientRect();
+    const total = Math.max(1, rect.height - window.innerHeight * 0.65);
+    const read = Math.min(total, Math.max(0, window.innerHeight * 0.35 - rect.top));
+    const ratio = Math.max(0, Math.min(1, read / total));
+    bar.style.transform = `scaleX(${ratio})`;
+  if (ratio > 0.94 && !reader.dataset.readCompleteSent) {
+    reader.dataset.readCompleteSent = "true";
+      trackEvent("story_read_complete", storyAnalyticsParams(reader));
+    }
+  };
+
+  window.removeEventListener("scroll", window.__resonaReaderProgress || (() => {}));
+  window.__resonaReaderProgress = () => requestAnimationFrame(update);
+  window.addEventListener("scroll", window.__resonaReaderProgress, { passive: true });
+  update();
+}
+
+function chooseStoryPath(storyId, choice) {
+  const id = `choice-response-${storyId.replace(/[^a-zA-Z0-9]/g, "-")}`;
+  const node = document.getElementById(id);
+  const responses = {
+    delegate_to_ai: "The machine can move faster than fear. But someone still has to remember why the decision mattered.",
+    keep_human_final: "The human decision is slower. Sometimes the delay is the last place responsibility can live.",
+  };
+  if (node) node.textContent = responses[choice] || "The archive records the hesitation.";
+  trackEvent("story_choice_click", {
+    story_id: storyId,
+    choice,
+  });
+}
+
+window.chooseStoryPath = chooseStoryPath;
 
 window.addEventListener("hashchange", router);
 initInteractionAnalytics();
