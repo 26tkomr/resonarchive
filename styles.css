@@ -818,13 +818,20 @@ a {
     var(--bg-tertiary);
 }
 
-.real-risk-map .leaflet-pane,
-.real-risk-map .leaflet-control-container {
-  z-index: 2;
+.real-risk-map .leaflet-tile {
+  filter: invert(0.94) hue-rotate(180deg) saturate(0.56) contrast(1.18) brightness(0.63);
 }
 
-.real-risk-map .leaflet-tile {
-  filter: saturate(0.72) contrast(1.08) brightness(0.82);
+.real-risk-map .leaflet-tile-pane {
+  opacity: 0.96;
+}
+
+.real-risk-map .leaflet-overlay-pane {
+  z-index: 430;
+}
+
+.real-risk-map .leaflet-marker-pane {
+  z-index: 460;
 }
 
 .real-risk-map .leaflet-control-attribution {
@@ -857,8 +864,8 @@ a {
   border-radius: 50%;
   background: var(--accent);
   box-shadow:
-    0 0 0 calc(var(--s) * 0.62) color-mix(in srgb, var(--accent) 11%, transparent),
-    0 0 calc(var(--s) * 2.8) color-mix(in srgb, var(--accent) 72%, transparent);
+    0 0 0 calc(var(--s) * 0.58) color-mix(in srgb, var(--accent) 18%, transparent),
+    0 0 calc(var(--s) * 3.2) color-mix(in srgb, var(--accent) 88%, transparent);
   animation: pulseNode 4.6s ease-in-out infinite;
   animation-delay: calc(var(--i) * -0.28s);
 }
@@ -2181,7 +2188,6 @@ a {
 }
 
 .motion-reveal,
-.section,
 .split-section,
 .theme-list .list-card,
 .map-event {
@@ -2191,7 +2197,6 @@ a {
 }
 
 .motion-reveal.is-visible,
-.section.is-visible,
 .split-section.is-visible,
 .theme-list .list-card.is-visible,
 .map-event.is-visible {

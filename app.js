@@ -3243,40 +3243,59 @@ function initRiskMaps() {
     const events = visibleMapEvents(limit);
     const map = L.map(node, {
       center: [18, 18],
-      zoom: limit > 12 ? 2 : 2,
+      zoom: 1.5,
       minZoom: 1,
       maxZoom: 5,
+      zoomSnap: 0.25,
       zoomControl: false,
       attributionControl: true,
       scrollWheelZoom: false,
       dragging: true,
-      worldCopyJump: true,
+      worldCopyJump: false,
+      maxBounds: [[-85, -180], [85, 180]],
+      maxBoundsViscosity: 1,
     });
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
-      subdomains: "abcd",
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
       maxZoom: 6,
+      noWrap: true,
+      bounds: [[-85, -180], [85, 180]],
     }).addTo(map);
 
-    const lineCoords = events
-      .map((event) => eventCoordinates[event.id])
-      .filter(Boolean);
-    for (let index = 0; index < lineCoords.length - 1; index += 1) {
-      L.polyline([lineCoords[index], lineCoords[index + 1]], {
-        className: "risk-geo-line",
-        color: "rgba(103, 232, 249, 0.22)",
-        weight: 1,
-        opacity: 0.55,
-        dashArray: "4 10",
-      }).addTo(map);
-    }
+    map.fitBounds([[-58, -174], [78, 174]], {
+      padding: [14, 14],
+      animate: false,
+    });
+
+    const eventGroups = new Map();
+    events.forEach((event) => {
+      const coord = eventCoordinates[event.id];
+      if (!coord || !event.themeId) return;
+      const group = eventGroups.get(event.themeId) || [];
+      group.push(coord);
+      eventGroups.set(event.themeId, group);
+    });
+    eventGroups.forEach((coords) => {
+      const [hub, ...satellites] = coords;
+      satellites.forEach((coord) => {
+        L.polyline([hub, coord], {
+          className: "risk-geo-line",
+          color: "rgba(103, 232, 249, 0.2)",
+          weight: 0.9,
+          opacity: 0.48,
+          dashArray: "4 10",
+        }).addTo(map);
+      });
+    });
 
     events.forEach((event, index) => {
       const level = riskLevel(event.score);
       const coord = eventCoordinates[event.id];
       if (!coord) return;
-      const size = Math.round(9 + event.score / 8);
+      const size = events.length > 24
+        ? Math.round(6 + event.score / 12)
+        : Math.round(9 + event.score / 9);
       const icon = L.divIcon({
         className: `geo-risk-dot ${level.className}`,
         html: `<span style="--s:${size}px;--i:${index}"><i></i><b>${event.label}</b></span>`,
@@ -3289,7 +3308,13 @@ function initRiskMaps() {
       });
     });
 
-    window.setTimeout(() => map.invalidateSize(), 120);
+    window.setTimeout(() => {
+      map.invalidateSize();
+      map.fitBounds([[-58, -174], [78, 174]], {
+        padding: [14, 14],
+        animate: false,
+      });
+    }, 120);
   });
 }
 
@@ -3303,7 +3328,7 @@ function initPageMotionSoon() {
 
 function initPageMotion() {
   initImmersiveMotion();
-  const revealItems = document.querySelectorAll(".motion-reveal, .section, .split-section, .list-card, .map-event");
+  const revealItems = document.querySelectorAll(".motion-reveal, .split-section, .list-card, .map-event");
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
