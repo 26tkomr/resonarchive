@@ -2012,8 +2012,29 @@ function generatedScenarioArchiveStoriesEnglish(theme, startIndex = 0, count = 1
   });
 }
 
+function curatedCurrentAffairsStories(theme) {
+  const records = window.RESONA_CURRENT_AFFAIRS_STORIES?.[theme.id] || [];
+  return records.map((story) =>
+    normalizeStoryRecord(
+      {
+        ...story,
+        sequence: Number(story.id?.match(/#(\d+)/)?.[1] || 13),
+        engine: {
+          ...storyEngineContext(theme, Number(story.id?.match(/#(\d+)/)?.[1] || 13)),
+          form: story.narrativeForm || "archive record",
+          year: story.year,
+          city: story.city,
+          country: story.country,
+          viewpoint: story.viewpoint,
+        },
+      },
+      theme,
+    ),
+  );
+}
+
 scenarioStories = function scenarioStoriesEnglish(theme) {
-  return generatedScenarioArchiveStoriesEnglish(theme, 0, 12);
+  return [...curatedCurrentAffairsStories(theme), ...generatedScenarioArchiveStoriesEnglish(theme, 0, 12)];
 };
 
 publishedScenarioStories = function publishedScenarioStoriesEnglish(theme) {
@@ -2074,6 +2095,28 @@ function storyThemeSignal(theme) {
   return signals[0] || themeSummary(theme);
 }
 
+function storySignal(theme, story) {
+  return story.sourceSignals?.[0] || storyThemeSignal(theme);
+}
+
+function storySourceNotes(story) {
+  if (!story.sourceReferences?.length) return "";
+  return `
+    <details class="story-source-notes motion-reveal">
+      <summary>Signals behind this story</summary>
+      <p>Observed ${story.observedAt || story.generatedAt}. These sources informed the fiction; the story itself is not a forecast.</p>
+      <div>
+        ${story.sourceReferences
+          .map(
+            (source) =>
+              `<a href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer noopener">${escapeHtml(source.label)}</a>`,
+          )
+          .join("")}
+      </div>
+    </details>
+  `;
+}
+
 function findStoryByRoute(themeSlugValue, storyNumberValue) {
   const theme = themeFromSlug(themeSlugValue) || themes[0];
   const story = scenarioStories(theme).find((item) => storyNumber(item) === storyNumberValue) || latestScenarioStory(theme);
@@ -2092,10 +2135,13 @@ function relatedStories(theme, currentStory, limit = 3) {
 }
 
 function sectionedStoryParagraphs(story) {
-  const headings = ["The Signal Arrives", "The City Adjusts", "What Remains"];
+  const breakpoints = new Map([
+    [Math.ceil(story.text.length / 3), "The City Adjusts"],
+    [Math.ceil((story.text.length * 2) / 3), "What Remains"],
+  ]);
   return story.text
     .map((paragraph, index) => {
-      const heading = index > 0 && index % 5 === 0 ? `<h3>${headings[Math.floor(index / 5) % headings.length]}</h3>` : "";
+      const heading = breakpoints.has(index) ? `<h3>${breakpoints.get(index)}</h3>` : "";
       return `${heading}<p>${paragraph}</p>`;
     })
     .join("");
@@ -3336,21 +3382,22 @@ function initImmersiveMotion(scope = document) {
 
 function latestWorldMemories(limit = 6) {
   const preferred = [
-    "taiwan-contingency-risk",
+    "food-security-price-shock",
     "billionaire-capital-ai-space",
+    "supply-chain-fragmentation",
+    "middle-east-oil",
+    "taiwan-contingency-risk",
     "climate-migration-water-stress",
     "information-trust-fracture",
-    "supply-chain-fragmentation",
-    "food-security-price-shock",
     "europe-populism-migration",
     "state-backed-cyber",
   ];
   return preferred
     .map((themeId) => themes.find((theme) => theme.id === themeId))
     .filter(Boolean)
-    .map((theme, index) => {
+    .map((theme) => {
       const stories = scenarioStories(theme).filter((story) => story.status === "published");
-      const story = stories.length ? stories[(index * 2 + 1) % stories.length] : latestScenarioStory(theme);
+      const story = stories[0] || latestScenarioStory(theme);
       return {
         theme,
         story,
@@ -3379,6 +3426,22 @@ function todayReadingPathway() {
 }
 
 const archiveUpdates = [
+  {
+    id: "2026-09-26-current-affairs-stories",
+    date: "2026-09-26",
+    type: "New Stories",
+    title: "Four new memories entered the archive.",
+    description: "Shipping disruption, grid queues, critical minerals and displacement now appear as four distinct lives rather than as headlines.",
+    metric: "+4 stories",
+  },
+  {
+    id: "2026-09-26-observed-signals",
+    date: "2026-09-26",
+    type: "Observed Signals",
+    title: "The archive now shows what each new story was listening to.",
+    description: "Official UN, IEA, UNCTAD and UNHCR records are attached quietly beneath the fiction.",
+    metric: "7 sources",
+  },
   {
     id: "2026-07-04-world-signals",
     date: "2026-07-04",
@@ -3824,7 +3887,7 @@ function storyPage(themeSlugValue, storyNumberValue) {
       <section class="reality-bridge motion-reveal">
         <article>
           <span>World signal</span>
-          <p>${storyThemeSignal(theme)}</p>
+          <p>${storySignal(theme, story)}</p>
         </article>
         <article>
           <span>Near future</span>
@@ -3842,6 +3905,8 @@ function storyPage(themeSlugValue, storyNumberValue) {
           ${sectionedStoryParagraphs(story)}
         </div>
       </section>
+
+      ${storySourceNotes(story)}
 
       <section class="reader-choice motion-reveal" data-story-id="${story.id}">
         <span class="eyebrow">You reach the same room</span>

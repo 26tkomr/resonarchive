@@ -537,6 +537,46 @@ a {
   margin: 0 auto;
 }
 
+.story-source-notes {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto 88px;
+  padding: 18px 0;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+}
+
+.story-source-notes summary {
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.story-source-notes p {
+  max-width: 62ch;
+  margin: 14px 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.story-source-notes div {
+  display: grid;
+  gap: 8px;
+}
+
+.story-source-notes a {
+  color: var(--accent-cyan);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.story-source-notes a:hover {
+  color: var(--text-primary);
+}
+
 .story-reader-card .fiction-body {
   font-size: clamp(17px, 1.45vw, 20px);
   line-height: 2.05;
