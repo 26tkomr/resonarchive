@@ -133,6 +133,20 @@ publishedAt
 relevanceScore
 ```
 
+## Data Storage
+
+The API stores JSON files in the repository-root `data/` directory, resolved relative to `server/api-server.js` rather than the shell working directory. No external database or object storage is currently implemented.
+
+| Data | Path |
+| --- | --- |
+| Normalized Signals | `data/signals/{theme}.json` |
+| Source cache | `data/cache/{key}.json` |
+| Story Seeds | `data/story-seeds/draft/{id}.json` |
+| Draft stories | `data/themes/{themeId}/stories/draft/{id}.json` |
+| Published stories | `data/themes/{themeId}/stories/published/{id}.json` |
+
+Publishing writes the published record and removes the draft file. Back up the entire `data/` directory to preserve all records. Browser bookmarks and the Studio admin token remain in browser local storage, separate from server data.
+
 ## Running Locally
 
 This can run as a static HTML/CSS/JavaScript app, or through the local API server.
@@ -236,14 +250,26 @@ Docker:
 ```bash
 cd "/Users/tkomr/Documents/New project/resona-geotech-web"
 docker build -t resona-geotech-web .
-docker run -p 4173:4173 -e ADMIN_TOKEN="change-this" -e OPENAI_API_KEY="sk-..." resona-geotech-web
+docker run --mount type=volume,source=resona-data,target=/app/data -p 4173:4173 -e ADMIN_TOKEN="change-this" -e OPENAI_API_KEY="sk-..." resona-geotech-web
 ```
 
-Render:
+The named Docker volume `resona-data` preserves JSON data when containers are replaced; keep reusing it and do not delete it when cleaning up containers.
 
-- Use `render.yaml`
-- Set `ADMIN_TOKEN` and `OPENAI_API_KEY` in Render environment variables
-- Do not commit real API keys
+### Render
+
+- Create or sync a Blueprint using `render.yaml`.
+- The Blueprint uses the paid `starter` plan and a 1 GB persistent disk named `resona-data`, mounted at `/app/data`. Disk storage is billed separately; free services cannot attach persistent disks.
+- The Dockerfile places the repository in `/app`, so the API's existing repository-root `data/` path resolves to `/app/data`. No API path or environment-variable changes are needed.
+- Set `ADMIN_TOKEN` and `OPENAI_API_KEY` in Render environment variables. Set `GA_MEASUREMENT_ID` if analytics is wanted.
+- Do not commit real API keys.
+
+For an existing service, committing this file alone does not confirm that a disk is attached. Sync the Blueprint and verify the service's Disk page shows `/app/data`. If the service was created manually rather than through a Blueprint, attach a persistent disk at `/app/data` in the Render Dashboard instead. Check for an existing disk first rather than creating a duplicate.
+
+**Before the first disk attachment:** back up the live service's entire `/app/data` directory before syncing or redeploying. A new mounted disk hides files at that path in the container image; do not assume it copies existing live data or the repository's sample JSON files. Restore the backup into the mounted `/app/data` using the service's runtime shell before resuming generation or publishing. An empty disk starts with an empty API archive; the server creates subdirectories as it writes. If only the repository's sample records are needed, restore those explicitly.
+
+After attachment, verify stored Signals, Story Seeds, drafts and published stories, then restart or redeploy and confirm the same records remain. Only files under `/app/data` persist. Keep independent backups: a persistent disk does not protect against application deletion or overwriting. Disks are available only at runtime, support a single service instance and prevent zero-downtime deploys.
+
+References: [Render persistent disks](https://render.com/docs/disks) and [Blueprint disk configuration](https://render.com/docs/blueprint-spec#disk).
 
 For another device on the same Wi-Fi/LAN:
 
@@ -282,7 +308,7 @@ resona-geotech-web/
 
 - Editorial review UI for approving pending story candidates
 - Multilingual story translation pipeline
-- Persistent production storage with Supabase/PostgreSQL/Firebase
+- Migrate JSON disk storage to a managed database such as Supabase/PostgreSQL/Firebase
 - Full text search by country, region, technology, era and viewpoint
 - Audio narration
 - Story collections and recurring worldlines
